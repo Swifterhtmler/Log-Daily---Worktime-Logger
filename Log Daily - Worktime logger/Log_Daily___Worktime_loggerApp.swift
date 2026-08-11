@@ -4,7 +4,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct ___PACKAGENAME:identifier___App: App {
+struct Log_Daily___Worktime_loggerApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -25,3 +25,4 @@ struct ___PACKAGENAME:identifier___App: App {
         .modelContainer(sharedModelContainer)
     }
 }
+
