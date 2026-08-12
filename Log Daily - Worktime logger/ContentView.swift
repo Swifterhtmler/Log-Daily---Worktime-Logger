@@ -26,6 +26,8 @@ struct ContentView: View {
             List {
                 ForEach(items) { item in
                     Text(item.timestamp.description)
+                        .font(.caption)
+                        .fontWeight(.heavy)
                 }
             }
         }
@@ -33,8 +35,8 @@ struct ContentView: View {
     
     private func addItem() {
         withAnimation {
-            //   let newItem = Item(timestamp: Date())
-            //   modelContext.insert(newItem)
+               let newItem = Item(timestamp: Date())
+                modelContext.insert(newItem)
         }
     }
     //
