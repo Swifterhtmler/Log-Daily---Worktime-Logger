@@ -13,6 +13,7 @@ struct ContentView: View {
     @Query var items: [Item]
     @State private var scale = 1.0
     
+    // start of contentview: view
     var body: some View {
         
         
@@ -27,6 +28,7 @@ struct ContentView: View {
                                 .font(.title2)
                                 .fontWeight(.bold)
                             
+                            
                         }
                         .allowsHitTesting(false)
                         .foregroundStyle(Color.black)
@@ -39,49 +41,55 @@ struct ContentView: View {
                     })
                 }.frame(maxWidth: .infinity)
                 
-//                List {
-//                    ForEach(items) { item in
-//                        Text(item.timestamp.description)
-//                            .font(.caption)
-//                            .fontWeight(.heavy)
-//                    }
-//                }
+                //                List {
+                //                    ForEach(items) { item in
+                //                        Text(item.timestamp.description)
+                //                            .font(.caption)
+                //                            .fontWeight(.heavy)
+                //                    }
+                //                }
                 
             }
             
             
         }
-      
         
         
-    // the view ends here
-    }
-
-    
-    struct LogView: View {
-        @Environment(\.modelContext) private var modelContext
-        @Query private var items: [Item]
-        var body: some View {
-          //  Text("this is log view navigated to");
-                            List {
-                                ForEach(items) { item in
-                                    Text(item.timestamp.description)
-                                        .font(.caption)
-                                        .fontWeight(.heavy)
-                                }
-                            }
+        
+        // the view ends here
         }
-    }
-    
     
     
     private func addItem() {
         withAnimation {
                let newItem = Item(timestamp: Date())
                 modelContext.insert(newItem)
-                scale += 0.2
+            scale += 0.3
         }
     }
+    
+    
+}
+
+    
+    struct LogView: View {
+        @Environment(\.modelContext) private var modelContext
+        @Query var items: [Item]
+        var body: some View {
+          //  Text("this is log view navigated to");
+                            List {
+                                ForEach(items) { item in
+                                    Text(item.timestamp.description)
+                             .font(.caption)
+                            .fontWeight(.heavy)
+                         }
+                    }
+        }
+    }
+    
+    
+    
+
     //
     //    private func deleteItems(offsets: IndexSet) {
     //        withAnimation {
@@ -91,7 +99,7 @@ struct ContentView: View {
     //        }
     //    }
     //}
-}
+
     
     #Preview {
         ContentView()
