@@ -22,23 +22,25 @@ struct ContentView: View {
             VStack(alignment: .leading) {
                 VStack(alignment: .center) {
                     NavigationLink(destination: LogView().navigationBarBackButtonHidden(true), label: {
-                        Button(action: addItem) {
-                            Text("Saavuin")
-                                .padding(50)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                            
-                            
-                        }
-                        .allowsHitTesting(false)
-                        .foregroundStyle(Color.black)
-                        .background(Color.gray)
-                        .cornerRadius(15)
-                        .clipShape(.circle)
-                        .scaleEffect(scale)
-                        .animation(.linear(duration: 1), value: scale)
-                        .padding(.top,10)
+                        // note for future: when tapped by default navigationlink "absorbs" the touch not letting addItem to fire but using .simultaneousGesture lets bith navigate and fire the function below
+                        Text("Saavuin")
+                            .padding(50)
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.black)
+                            .background(Color.gray)
+                            .cornerRadius(15)
+                            .clipShape(.circle)
+                            .scaleEffect(scale)
+                            .animation(.linear(duration: 1), value: scale)
+                            .padding(.top,10)
                     })
+                    .simultaneousGesture(
+                        TapGesture().onEnded {
+                            addItem()
+                        }
+                    )
+                    
                 }.frame(maxWidth: .infinity)
                 
                 //                List {
@@ -76,7 +78,7 @@ struct ContentView: View {
         @Environment(\.modelContext) private var modelContext
         @Query var items: [Item]
         var body: some View {
-          //  Text("this is log view navigated to");
+           Text("this is log view navigated to");
                             List {
                                 ForEach(items) { item in
                                     Text(item.timestamp.description)
@@ -103,6 +105,6 @@ struct ContentView: View {
     
     #Preview {
         ContentView()
-        //  .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Item.self, inMemory: true)
     }
 
