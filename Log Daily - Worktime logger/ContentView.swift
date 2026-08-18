@@ -44,13 +44,9 @@ struct ContentView: View {
                     
                 }.frame(maxWidth: .infinity)
                 
-                //                List {
-                //                    ForEach(items) { item in
-                //                        Text(item.timestamp.description)
-                //                            .font(.caption)
-                //                            .fontWeight(.heavy)
-                //                    }
-                //                }
+                
+                
+                
                 
             }
             
@@ -129,7 +125,6 @@ struct ContentView: View {
         
         
     }
-    
     
     
 
