@@ -43,13 +43,8 @@ struct ContentView: View {
                     )
                     
                 }.frame(maxWidth: .infinity)
-                
-                
-                
-                
-                
-            }
             
+            }
             
         }
         
@@ -63,7 +58,7 @@ struct ContentView: View {
         withAnimation {
                let newItem = Item(timestamp: Date())
                 modelContext.insert(newItem)
-            scale += 0.3
+          //  scale += 0.3
         }
     }
     
@@ -93,11 +88,11 @@ struct ContentView: View {
                             .clipShape(.circle)
                             .padding(.top,10)
                     })
-//                    .simultaneousGesture(
-//                        TapGesture().onEnded {
-//                            AddLeaveTime()
-//                        }
-//                    )
+                    .simultaneousGesture(
+                        TapGesture().onEnded {
+                            AddLeaveTime()
+                        }
+                    )
                     
                 }.frame(maxWidth: .infinity)
             }
@@ -120,8 +115,6 @@ struct ContentView: View {
                     modelContext.insert(newItem)
             }
         }
-        
-        
         
         
     }
