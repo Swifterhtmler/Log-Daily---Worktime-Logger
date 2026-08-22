@@ -58,7 +58,6 @@ struct ContentView: View {
         withAnimation {
                let newItem = Item(timestamp: Date())
                 modelContext.insert(newItem)
-          //  scale += 0.3
         }
     }
     
@@ -107,18 +106,7 @@ struct ContentView: View {
         }
         
         
-        //
-        //    private func deleteItems(offsets: IndexSet) {
-        //        withAnimation {
-        //            for index in offsets {
-        //                modelContext.delete(items[index])
-        //            }
-        //        }
-        //    }
-        //}
-
-        
-        
+         
         private func AddLeaveTime() {
             withAnimation {
                    let newItem = Item(timestamp: Date())
