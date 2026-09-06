@@ -1,138 +1,147 @@
-//
-//  ContentView.swift
-//  Log Daily - Worktime logger
-//
-//  Created by Riku Kuisma on 10.8.2026.
-//
-
 import SwiftUI
 import SwiftData
 
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query var items: [Item]
-    @State private var scale = 1.0
-    
-    // start of contentview: view
+    @State private var currentItem: Item?
+
     var body: some View {
-        
-        
         NavigationView {
-            
-            VStack(alignment: .leading) {
-                VStack(alignment: .center) {
-                    NavigationLink(destination: LogView().navigationBarBackButtonHidden(true), label: {
-                        // note for future: when tapped by default navigationlink "absorbs" the touch not letting addItem to fire but using .simultaneousGesture lets bith navigate and fire the function below
-                        
-                        Text("Saavuin")
-                            .padding(50)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.black)
-                            .background(Color.gray)
-                            .cornerRadius(15)
-                            .clipShape(.circle)
-                            .scaleEffect(scale)
-                            .animation(.linear(duration: 1), value: scale)
-                            .padding(.top,10)
-                    })
-                    .simultaneousGesture(
-                        TapGesture().onEnded {
-                            addItem()
+            VStack(alignment: .center) {
+                if let item = currentItem {
+                    WorkingView(currentItem: item)
+                } else {
+                    // Start work button
+                    NavigationLink(
+                        destination: WorkingView(currentItem: Item(timestamp: Date())),
+                        label: {
+                            Text("Start Work")
+                                .padding(60)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundStyle(Color.black)
+                                .background(Color.green)
+                                .clipShape(.circle)
+                                .padding(.top, 10)
                         }
                     )
-                    
-                }.frame(maxWidth: .infinity)
-            
+                    .simultaneousGesture(
+                        TapGesture().onEnded {
+                            withAnimation {
+                                currentItem = Item(timestamp: Date())
+                            }
+                        }
+                    )
+                }
             }
-            
-        }
-        
-        
-        
-        // the view ends here
-        }
-    
-    
-    private func addItem() {
-        withAnimation {
-               let newItem = Item(timestamp: Date())
-                modelContext.insert(newItem)
+            .frame(maxWidth: .infinity)
         }
     }
-    
-    
 }
 
-    
-    struct LogView: View {
-        @Environment(\.modelContext) private var modelContext
-        @Query var items: [Item]
-        var body: some View {
-         //  Text("this is log view navigated to");
-            
-                       
-            VStack(alignment: .leading) {
-                VStack(alignment: .center) {
-                    NavigationLink(destination: ContentView().navigationBarBackButtonHidden(true), label: {
-                        // note for future: when tapped by default navigationlink "absorbs" the touch not letting addItem to fire but using .simultaneousGesture lets bith navigate and fire the function below
-                        
-                        Text("Lähdin")
-                            .padding(50)
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.black)
-                            .background(Color.gray)
-                            .cornerRadius(15)
-                            .clipShape(.circle)
-                            .padding(.top,10)
-                    })
-                    .simultaneousGesture(
-                        TapGesture().onEnded {
-                            AddLeaveTime()
-                        }
-                    )
-                    
-                }.frame(maxWidth: .infinity)
-            }
-            
-                            List {
-                                ForEach(items) { item in
-                                    Text(item.timestamp.description)
-                             .font(.caption)
-                            .fontWeight(.heavy)
-                         }
+
+struct WorkingView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Bindable var currentItem: Item  // Use @Bindable to observe changes
+
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 40) {
+                Text("You are working")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+
+                Text("Started at: \(currentItem.timestamp.formatted(.dateTime.hour().minute()))")
+                    .font(.title2)
+
+                Spacer()
+
+                NavigationLink(destination: LogView().navigationBarBackButtonHidden(true)) {
+                    Text("End Day")
+                        .padding(65)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.white)
+                        .background(Color.red)
+                        .clipShape(.circle)
+                }
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        endWork()
                     }
-        }
-        
-        
-         
-        private func AddLeaveTime() {
-            withAnimation {
-                   let newItem = Item(timestamp: Date())
-                    modelContext.insert(newItem)
+                )
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        
-        
-        
-        //
-        //    private func deleteItems(offsets: IndexSet) {
-        //        withAnimation {
-        //            for index in offsets {
-        //                modelContext.delete(items[index])
-        //            }
-        //        }
-        //    }
-        //}
-
-        
     }
-    
-    
 
-    #Preview {
-        ContentView()
+    private func endWork() {
+        withAnimation {
+            currentItem.leavetime = Date()
+        }
+    }
+}
+
+
+struct LogView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query var items: [Item]
+
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading) {
+                Text("Work Sessions")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding()
+
+                VStack(alignment: .center) {
+                    List {
+                        ForEach(items) { item in
+                            VStack(alignment: .leading) {
+                                Text("Session")
+                                    .font(.headline)
+                                
+                                if let endTime = item.leavetime {
+                                    // Completed session
+                                    Text("\(item.timestamp.formatted(.dateTime.hour().minute())) - \(endTime.formatted(.dateTime.hour().minute()))")
+                                        .font(.subheadline)
+                                } else {
+                                    // Ongoing session
+                                    Text("Started: \(item.timestamp.formatted(.dateTime.hour().minute())) - Still working")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                            .padding(.vertical, 8)
+                        }
+                    }
+                    .listStyle(.plain)
+                }
+
+                Spacer()
+
+                NavigationLink(destination: ContentView().navigationBarBackButtonHidden(true)) {
+                    Text("Back to Start")
+                        .padding(70)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.white)
+                        .background(Color.blue)
+                        .clipShape(.circle)
+                        .padding(.bottom, 20)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+    }
+}
+
+
+
+#Preview {
+    ContentView()
         .modelContainer(for: Item.self, inMemory: true)
-    }
-
+}

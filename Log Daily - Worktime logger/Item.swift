@@ -11,9 +11,9 @@ import SwiftData
 @Model
 final class Item: Identifiable {
     var timestamp: Date
-    var leavetime: Date
+    var leavetime: Date?
     
-    init(timestamp: Date, leavetime: Date) {
+    init(timestamp: Date, leavetime: Date? = nil) {
         self.timestamp = timestamp
         self.leavetime = leavetime
     }
