@@ -17,11 +17,11 @@ struct ContentView: View {
                         destination: WorkingView(currentItem: Item(timestamp: Date())),
                         label: {
                             Text("Start Work")
-                                .padding(60)
-                                .font(.title2)
+                                .padding(80)
                                 .fontWeight(.bold)
-                                .foregroundStyle(Color.black)
+                                .foregroundStyle(Color.white)
                                 .background(Color.green)
+                                .font(.system(size: 28))
                                 .clipShape(.circle)
                                 .padding(.top, 10)
                         }
@@ -29,7 +29,9 @@ struct ContentView: View {
                     .simultaneousGesture(
                         TapGesture().onEnded {
                             withAnimation {
-                                currentItem = Item(timestamp: Date())
+                                let newItem = Item(timestamp: Date())
+                                modelContext.insert(newItem)
+                                currentItem = newItem
                             }
                         }
                     )
@@ -61,11 +63,12 @@ struct WorkingView: View {
                 NavigationLink(destination: LogView().navigationBarBackButtonHidden(true)) {
                     Text("End Day")
                         .padding(65)
-                        .font(.title2)
+                        .font(.system(size: 25))
                         .fontWeight(.bold)
                         .foregroundStyle(Color.white)
                         .background(Color.red)
                         .clipShape(.circle)
+                        .padding(.bottom, 70)
                 }
                 .simultaneousGesture(
                     TapGesture().onEnded {
@@ -85,13 +88,17 @@ struct WorkingView: View {
 }
 
 
+
+
+// login view
+
 struct LogView: View {
     @Environment(\.modelContext) private var modelContext
     @Query var items: [Item]
 
     var body: some View {
         NavigationView {
-            VStack(alignment: .leading) {
+            VStack(alignment: .center) {
                 Text("Work Sessions")
                     .font(.largeTitle)
                     .fontWeight(.bold)
@@ -105,14 +112,8 @@ struct LogView: View {
                                     .font(.headline)
                                 
                                 if let endTime = item.leavetime {
-                                    // Completed session
                                     Text("\(item.timestamp.formatted(.dateTime.hour().minute())) - \(endTime.formatted(.dateTime.hour().minute()))")
                                         .font(.subheadline)
-                                } else {
-                                    // Ongoing session
-                                    Text("Started: \(item.timestamp.formatted(.dateTime.hour().minute())) - Still working")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.orange)
                                 }
                             }
                             .padding(.vertical, 8)
@@ -126,18 +127,24 @@ struct LogView: View {
                 NavigationLink(destination: ContentView().navigationBarBackButtonHidden(true)) {
                     Text("Back to Start")
                         .padding(70)
-                        .font(.title2)
                         .fontWeight(.bold)
                         .foregroundStyle(Color.white)
                         .background(Color.blue)
+                        .font(.system(size: 25))
                         .clipShape(.circle)
-                        .padding(.bottom, 20)
                 }
+                
             }
             .frame(maxWidth: .infinity, alignment: .center)
         }
+        Spacer()
     }
 }
+
+
+
+
+
 
 
 
