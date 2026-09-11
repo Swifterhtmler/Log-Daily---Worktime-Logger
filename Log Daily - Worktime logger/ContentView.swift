@@ -12,36 +12,29 @@ struct ContentView: View {
                 if let item = currentItem {
                     WorkingView(currentItem: item)
                 } else {
-                    // Start work button
-                    NavigationLink(
-                        destination: WorkingView(currentItem: Item(timestamp: Date())),
-                        label: {
-                            Text("Start Work")
-                                .padding(80)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color.white)
-                                .background(Color.green)
-                                .font(.system(size: 28))
-                                .clipShape(.circle)
-                                .padding(.top, 10)
+                    // Changed to Button
+                    Button(action: {
+                        withAnimation {
+                            let newItem = Item(timestamp: Date())
+                            modelContext.insert(newItem)
+                            currentItem = newItem
                         }
-                    )
-                    .simultaneousGesture(
-                        TapGesture().onEnded {
-                            withAnimation {
-                                let newItem = Item(timestamp: Date())
-                                modelContext.insert(newItem)
-                                currentItem = newItem
-                            }
-                        }
-                    )
+                    }) {
+                        Text("Start Work")
+                            .padding(80)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.white)
+                            .background(Color.green)
+                            .font(.system(size: 28))
+                            .clipShape(.circle)
+                            .padding(.top, 10)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)
         }
     }
 }
-
 
 struct WorkingView: View {
     @Environment(\.modelContext) private var modelContext
@@ -68,7 +61,6 @@ struct WorkingView: View {
                         .foregroundStyle(Color.white)
                         .background(Color.red)
                         .clipShape(.circle)
-                        .padding(.bottom, 70)
                 }
                 .simultaneousGesture(
                     TapGesture().onEnded {
@@ -77,14 +69,18 @@ struct WorkingView: View {
                 )
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+           
         }
     }
 
     private func endWork() {
         withAnimation {
             currentItem.leavetime = Date()
+            try? modelContext.save() // Ensure changes are saved
         }
     }
+    
+    
 }
 
 
@@ -108,11 +104,11 @@ struct LogView: View {
                     List {
                         ForEach(items) { item in
                             VStack(alignment: .leading) {
-                                Text("Session")
+                                Text(Date().formatted(.dateTime.day(.defaultDigits).month(.defaultDigits).year(.defaultDigits)))
                                     .font(.headline)
-                                
+
                                 if let endTime = item.leavetime {
-                                    Text("\(item.timestamp.formatted(.dateTime.hour().minute())) - \(endTime.formatted(.dateTime.hour().minute()))")
+                                    Text(item.totalWorkTime ?? "0 hours: 0 minutes")
                                         .font(.subheadline)
                                 }
                             }
