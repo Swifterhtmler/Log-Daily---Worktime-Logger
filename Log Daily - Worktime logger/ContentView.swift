@@ -102,12 +102,16 @@ struct LogView: View {
 
                 VStack(alignment: .center) {
                     List {
-                        ForEach(items) { item in
+                        let reversedItems = items.reversed()
+                        ForEach(reversedItems) { item in
                             VStack(alignment: .leading) {
-                                Text(Date().formatted(.dateTime.day(.defaultDigits).month(.defaultDigits).year(.defaultDigits)))
-                                    .font(.headline)
+                            
 
                                 if let endTime = item.leavetime {
+                                    
+                                    Text(endTime.formatted(.dateTime.day(.defaultDigits).month(.defaultDigits).year(.defaultDigits)))
+                                                .font(.headline)
+                                    
                                     Text(item.totalWorkTime ?? "0 hours: 0 minutes")
                                         .font(.subheadline)
                                 }
