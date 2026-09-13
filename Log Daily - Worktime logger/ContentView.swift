@@ -2,9 +2,32 @@ import SwiftUI
 import SwiftData
 
 
+struct WeightedButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.91 : 1.0)
+            .brightness(configuration.isPressed ? -0.04 : 0)
+            .shadow(
+                color: .black.opacity(configuration.isPressed ? 0.08 : 0.25),
+                radius: configuration.isPressed ? 4 : 18,
+                y: configuration.isPressed ? 2 : 10
+            )
+            .animation(
+                .spring(
+                    response: 0.35,
+                    dampingFraction: 0.38
+                ),
+                value: configuration.isPressed
+            )
+    }
+}
+
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentItem: Item?
+    
+    @State private var buttonPulse = false
 
     var body: some View {
         NavigationView {
@@ -19,6 +42,9 @@ struct ContentView: View {
                             modelContext.insert(newItem)
                             currentItem = newItem
                         }
+                        
+                        
+                        
                     }) {
                         Text("Start Work")
                             .padding(80)
@@ -29,6 +55,8 @@ struct ContentView: View {
                             .clipShape(.circle)
                             .padding(.top, 10)
                     }
+                    .buttonStyle(WeightedButtonStyle())
+                    
                 }
             }
             .frame(maxWidth: .infinity)
@@ -67,6 +95,7 @@ struct WorkingView: View {
                         endWork()
                     }
                 )
+                .buttonStyle(WeightedButtonStyle())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
            
@@ -82,8 +111,6 @@ struct WorkingView: View {
     
     
 }
-
-
 
 
 // login view
@@ -133,9 +160,11 @@ struct LogView: View {
                         .font(.system(size: 25))
                         .clipShape(.circle)
                 }
+                .buttonStyle(WeightedButtonStyle())
                 
             }
             .frame(maxWidth: .infinity, alignment: .center)
+          //  .ignoresSafeArea(.all)
         }
         Spacer()
     }
