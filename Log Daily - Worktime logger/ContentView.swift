@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 
-
 struct WeightedButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -22,12 +21,14 @@ struct WeightedButtonStyle: ButtonStyle {
     }
 }
 
-
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var currentItem: Item?
-    
-    @State private var buttonPulse = false
+    @Query private var incompleteItems: [Item]
+
+    init() {
+        _incompleteItems = Query(filter: #Predicate<Item> { $0.leavetime == nil })
+    }
 
     var body: some View {
         NavigationView {
@@ -35,16 +36,12 @@ struct ContentView: View {
                 if let item = currentItem {
                     WorkingView(currentItem: item)
                 } else {
-                    // Changed to Button
                     Button(action: {
                         withAnimation {
                             let newItem = Item(timestamp: Date())
                             modelContext.insert(newItem)
                             currentItem = newItem
                         }
-                        
-                        
-                        
                     }) {
                         Text("Start Work")
                             .padding(80)
@@ -56,17 +53,22 @@ struct ContentView: View {
                             .padding(.top, 10)
                     }
                     .buttonStyle(WeightedButtonStyle())
-                    
                 }
             }
             .frame(maxWidth: .infinity)
+        }
+        .onAppear {
+            if let existingItem = incompleteItems.first {
+                currentItem = existingItem
+            }
         }
     }
 }
 
 struct WorkingView: View {
     @Environment(\.modelContext) private var modelContext
-    @Bindable var currentItem: Item  // Use @Bindable to observe changes
+    @Bindable var currentItem: Item
+    @State private var timer: Timer?
 
     var body: some View {
         NavigationView {
@@ -90,30 +92,33 @@ struct WorkingView: View {
                         .background(Color.red)
                         .clipShape(.circle)
                 }
+                .buttonStyle(WeightedButtonStyle())
                 .simultaneousGesture(
                     TapGesture().onEnded {
                         endWork()
                     }
                 )
-                .buttonStyle(WeightedButtonStyle())
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-           
+        }
+        .onAppear {
+            timer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { _ in
+                try? modelContext.save()
+            }
+        }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
         }
     }
 
     private func endWork() {
         withAnimation {
             currentItem.leavetime = Date()
-            try? modelContext.save() // Ensure changes are saved
+            try? modelContext.save()
         }
     }
-    
-    
 }
-
-
-// login view
 
 struct LogView: View {
     @Environment(\.modelContext) private var modelContext
@@ -132,13 +137,9 @@ struct LogView: View {
                         let reversedItems = items.reversed()
                         ForEach(reversedItems) { item in
                             VStack(alignment: .leading) {
-                            
-
                                 if let endTime = item.leavetime {
-                                    
                                     Text(endTime.formatted(.dateTime.day(.defaultDigits).month(.defaultDigits).year(.defaultDigits)))
-                                                .font(.headline)
-                                    
+                                        .font(.headline)
                                     Text(item.totalWorkTime ?? "0 hours: 0 minutes")
                                         .font(.subheadline)
                                 }
@@ -161,21 +162,11 @@ struct LogView: View {
                         .clipShape(.circle)
                 }
                 .buttonStyle(WeightedButtonStyle())
-                
             }
             .frame(maxWidth: .infinity, alignment: .center)
-          //  .ignoresSafeArea(.all)
         }
-        Spacer()
     }
 }
-
-
-
-
-
-
-
 
 #Preview {
     ContentView()
