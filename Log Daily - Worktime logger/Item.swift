@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 @Model
-final class Item: Identifiable {
+final class Item: Identifiable, Hashable {
     var timestamp: Date
     var leavetime: Date?
 
